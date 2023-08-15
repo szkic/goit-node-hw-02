@@ -7,9 +7,8 @@ const router = express.Router();
 router.get("/", async (req, res, next) => {
   try {
     const contactsList = await contacts.listContacts();
-    res.json({
+    res.status(200).json({
       message: "success",
-      status: 200,
       data: { contactsList },
     });
   } catch (error) {
@@ -23,16 +22,12 @@ router.get("/:contactId", async (req, res, next) => {
     const contact = await contacts.getContactById(contactId);
 
     if (contact) {
-      res.json({
+      res.status(200).json({
         message: "success",
-        status: 200,
         data: { contact },
       });
     } else {
-      res.json({
-        message: "Not found",
-        status: 200,
-      });
+      res.status(404).json({ message: "Not found" });
     }
   } catch (error) {
     console.log(error);
@@ -44,19 +39,11 @@ router.post("/", async (req, res, next) => {
     const body = req.body;
     const { error } = validateAddContact(body);
 
-    if (error) {
-      console.log(error.details);
-
-      return res.send({
-        message: error.details,
-        status: 400,
-      });
-    }
+    if (error) return res.status(400).send({ message: error.details });
 
     const newContactsList = await contacts.addContact(body);
-    res.json({
+    res.status(201).json({
       message: "contact added",
-      status: 201,
       data: { newContactsList },
     });
   } catch (error) {
@@ -69,17 +56,9 @@ router.delete("/:contactId", async (req, res, next) => {
     const { contactId } = req.params;
     const deleteResult = await contacts.removeContact(contactId);
 
-    if (deleteResult) {
-      res.json({
-        message: "contact deleted",
-        status: 200,
-      });
-    } else {
-      res.json({
-        message: "not found",
-        status: 404,
-      });
-    }
+    deleteResult
+      ? res.status(200).json({ message: "contact deleted" })
+      : res.status(404).json({ message: "not found" });
   } catch (error) {
     console.log(error);
   }
@@ -91,26 +70,17 @@ router.put("/:contactId", async (req, res, next) => {
     const { contactId } = req.params;
     const { error } = valodateEditContact(body);
 
-    if (error) {
-      return res.send({
-        message: error.details,
-        status: 400,
-      });
-    }
+    if (error) return res.status(400).send({ message: error.details });
 
     const editContact = await contacts.updateContact(contactId, body);
 
     if (editContact) {
-      res.json({
+      res.status(200).json({
         message: "contact edited",
-        status: 200,
         data: { editContact },
       });
     } else {
-      res.json({
-        message: "Not found",
-        status: 404,
-      });
+      res.status(404).json({ message: "Not found" });
     }
   } catch (error) {
     console.log(error);
