@@ -1,11 +1,17 @@
 const fs = require("fs/promises");
 const { nanoid } = require("nanoid");
 
-const contacts = fs.readFile("models/contacts.json");
+const getContacts = async () => {
+  const contacts = fs.readFile("models/contacts.json");
+  return JSON.parse(await contacts);
+};
+
+const saveContact = async (data) =>
+  await fs.writeFile("models/contacts.json", JSON.stringify(data));
 
 const listContacts = async () => {
   try {
-    return JSON.parse(await contacts);
+    return await getContacts();
   } catch (error) {
     console.log(error);
   }
@@ -13,9 +19,9 @@ const listContacts = async () => {
 
 const getContactById = async (contactId) => {
   try {
-    const parsedData = JSON.parse(await contacts);
+    const contacts = await getContacts();
 
-    return parsedData.find((data) => data.id === contactId);
+    return contacts.find((data) => data.id === contactId);
   } catch (error) {
     console.log(error);
   }
@@ -23,14 +29,14 @@ const getContactById = async (contactId) => {
 
 const removeContact = async (contactId) => {
   try {
-    const parsedData = JSON.parse(await contacts);
-    const checkIfExist = parsedData.find((data) => data.id === contactId);
+    const contacts = await getContacts();
+    const findContact = contacts.find((data) => data.id === contactId);
 
-    if (checkIfExist) {
-      const contactsAfterRemove = parsedData.filter(
+    if (findContact) {
+      const contactsAfterRemove = contacts.filter(
         (contact) => contact.id !== contactId
       );
-      fs.writeFile("models/contacts.json", JSON.stringify(contactsAfterRemove));
+      await saveContact(contactsAfterRemove);
 
       return true;
     } else {
@@ -51,9 +57,9 @@ const addContact = async (body) => {
       phone,
     };
 
-    const parsedData = JSON.parse(await contacts);
-    parsedData.push(newContact);
-    fs.writeFile("models/contacts.json", JSON.stringify(parsedData));
+    const contacts = await getContacts();
+    contacts.push(newContact);
+    await saveContact(contacts);
 
     return newContact;
   } catch (error) {
@@ -70,24 +76,18 @@ const updateContact = async (contactId, body) => {
       phone,
     };
 
-    const parsedData = JSON.parse(await contacts);
-    const checkIfExist = parsedData.find((data) => data.id === contactId);
+    const contacts = await getContacts();
+    const index = contacts.findIndex((contact) => contact.id === contactId);
 
-    if (checkIfExist) {
-      const searchContact = parsedData.find((data) => data.id === contactId);
+    if (index === -1) return false;
 
-      for (const key in searchContact) {
-        editContact[key] === undefined
-          ? (searchContact[key] = searchContact[key])
-          : (searchContact[key] = editContact[key]);
-      }
+    const contact = contacts[index];
+    const updatedContact = { ...contact, ...body };
+    contacts[index] = updatedContact;
 
-      fs.writeFile("models/contacts.json", JSON.stringify(parsedData));
+    await saveContact(contacts);
 
-      return parsedData;
-    } else {
-      return false;
-    }
+    return contacts;
   } catch (error) {
     console.log(error);
   }
