@@ -1,6 +1,6 @@
 const express = require("express");
 const contacts = require("../../models/contacts");
-const { validateAddContact, valodateEditContact } = require("../../validator");
+const { validateAddContact, validateEditContact } = require("../../validator");
 
 const router = express.Router();
 
@@ -68,7 +68,7 @@ router.put("/:contactId", async (req, res, next) => {
   try {
     const body = req.body;
     const { contactId } = req.params;
-    const { error } = valodateEditContact(body);
+    const { error } = validateEditContact(body);
 
     if (error) return res.status(400).send({ message: error.details });
 

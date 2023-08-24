@@ -16,4 +16,4 @@ const editSchema = Joi.object({
 }).or("name", "email", "phone");
 
 exports.validateAddContact = validator(addSchema);
-exports.valodateEditContact = validator(editSchema);
+exports.validateEditContact = validator(editSchema);
