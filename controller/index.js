@@ -20,7 +20,7 @@ const get = async (req, res, next) => {
       data: { contactsList },
     });
   } catch (error) {
-    console.log(error);
+    res.status(500).json(`Contacts download error - ${error}`);
   }
 };
 
@@ -41,7 +41,7 @@ const getById = async (req, res, next) => {
       res.status(404).json({ message: "Not found" });
     }
   } catch (error) {
-    console.log(error);
+    res.status(500).json(`Contact download error - ${error}`);
   }
 };
 
@@ -58,7 +58,7 @@ const create = async (req, res, next) => {
       data: { newContactsList },
     });
   } catch (error) {
-    console.log(error);
+    res.status(500).json(`Contact create error - ${error}`);
   }
 };
 
@@ -74,7 +74,7 @@ const remove = async (req, res, next) => {
       ? res.status(200).json({ message: "contact deleted" })
       : res.status(404).json({ message: "not found" });
   } catch (error) {
-    console.log(error);
+    res.status(500).json(`Contact delete error - ${error}`);
   }
 };
 
@@ -98,7 +98,7 @@ const update = async (req, res, next) => {
       res.status(404).json({ message: "Not found" });
     }
   } catch (error) {
-    console.log(error);
+    res.status(500).json(`Contact update error - ${error}`);
   }
 };
 
@@ -126,7 +126,7 @@ const favorite = async (req, res, next) => {
       res.status(404).json({ message: "Not found" });
     }
   } catch (error) {
-    console.log(error);
+    res.status(500).json(`Favorite contact update error - ${error}`);
   }
 };
 
