@@ -1,5 +1,15 @@
 const service = require("../service");
-const { validateAddContact, validateEditContact } = require("../validator");
+const {
+  validateAddContact,
+  validateEditContact,
+  validateFavorite,
+} = require("../validator");
+const mongoose = require("mongoose");
+
+const checkIfIdValid = (contactId, res) => {
+  const isValidId = mongoose.isValidObjectId(contactId);
+  if (!isValidId) return res.status(400).send({ message: "Invalid payload" });
+};
 
 const get = async (req, res, next) => {
   try {
@@ -17,6 +27,9 @@ const get = async (req, res, next) => {
 const getById = async (req, res, next) => {
   try {
     const { contactId } = req.params;
+
+    checkIfIdValid(contactId, res);
+
     const contact = await service.getContactById(contactId);
 
     if (contact) {
@@ -52,6 +65,9 @@ const create = async (req, res, next) => {
 const remove = async (req, res, next) => {
   try {
     const { contactId } = req.params;
+
+    checkIfIdValid(contactId, res);
+
     const deleteResult = await service.removeContact(contactId);
 
     deleteResult
@@ -69,6 +85,7 @@ const update = async (req, res, next) => {
     const { error } = validateEditContact(body);
 
     if (error) return res.status(400).send({ message: error.details });
+    checkIfIdValid(contactId, res);
 
     const editContact = await service.updateContact(contactId, body);
 
@@ -89,13 +106,14 @@ const favorite = async (req, res, next) => {
   try {
     const body = req.body;
     const { contactId } = req.params;
-    const { error } = validateEditContact(body);
+    const { error } = validateFavorite(body);
 
     if (error)
-      return res.status(400).send({ message: "missing field favorite" });
+      return res
+        .status(400)
+        .send({ message: "Too much fields or missing field favorite" });
 
-    if (contactId.length !== 24)
-      return res.status(404).json({ message: "Not found" });
+    checkIfIdValid(contactId, res);
 
     const editFavorite = await service.updateStatusContact(contactId, body);
 

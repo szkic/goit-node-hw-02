@@ -17,5 +17,10 @@ const editSchema = Joi.object({
   favorite: Joi.boolean(),
 }).or("name", "email", "phone", "favorite");
 
+const editFavorite = Joi.object({
+  favorite: Joi.boolean().required(),
+});
+
 exports.validateAddContact = validator(addSchema);
 exports.validateEditContact = validator(editSchema);
+exports.validateFavorite = validator(editFavorite);
