@@ -7,13 +7,20 @@ const addSchema = Joi.object({
   name: Joi.string().required(),
   email: Joi.string().email().required(),
   phone: Joi.string().required(),
+  favorite: Joi.boolean().required(),
 });
 
 const editSchema = Joi.object({
   name: Joi.string(),
   email: Joi.string(),
   phone: Joi.string(),
-}).or("name", "email", "phone");
+  favorite: Joi.boolean(),
+}).or("name", "email", "phone", "favorite");
+
+const editFavorite = Joi.object({
+  favorite: Joi.boolean().required(),
+});
 
 exports.validateAddContact = validator(addSchema);
-exports.valodateEditContact = validator(editSchema);
+exports.validateEditContact = validator(editSchema);
+exports.validateFavorite = validator(editFavorite);
