@@ -21,6 +21,12 @@ const editFavorite = Joi.object({
   favorite: Joi.boolean().required(),
 });
 
+const signupSchema = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().min(4).required(),
+});
+
 exports.validateAddContact = validator(addSchema);
 exports.validateEditContact = validator(editSchema);
 exports.validateFavorite = validator(editFavorite);
+exports.validateSignup = validator(signupSchema);
