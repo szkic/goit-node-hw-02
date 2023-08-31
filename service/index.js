@@ -22,6 +22,8 @@ const findUser = () => User.find();
 
 const createUser = ({ email, password }) => User.create({ email, password });
 
+const findEmail = (email) => User.findOne({ email });
+
 module.exports = {
   getAllContacts,
   getContactById,
@@ -31,4 +33,5 @@ module.exports = {
   updateStatusContact,
   findUser,
   createUser,
+  findEmail,
 };
