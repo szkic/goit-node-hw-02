@@ -1,5 +1,5 @@
 const Contact = require("./schemas/contact");
-const User = require("./schemas/users");
+// const User = require("./schemas/users");
 
 // -------- CONTACTS --------
 const getAllContacts = () => Contact.find();
@@ -18,11 +18,11 @@ const updateStatusContact = (id, fields) =>
   Contact.findOneAndUpdate({ _id: id }, { $set: fields }, { new: true });
 
 // -------- USERS --------
-const findUser = () => User.find();
+// const findUser = () => User.find();
 
-const createUser = ({ email, password }) => User.create({ email, password });
+// const createUser = ({ email, password }) => User.create({ email, password });
 
-const findEmail = (email) => User.findOne({ email });
+// const findEmail = (email) => User.findOne({ email });
 
 module.exports = {
   getAllContacts,
@@ -31,7 +31,7 @@ module.exports = {
   updateContact,
   removeContact,
   updateStatusContact,
-  findUser,
-  createUser,
-  findEmail,
+  // findUser,
+  // createUser,
+  // findEmail,
 };

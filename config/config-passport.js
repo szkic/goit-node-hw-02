@@ -1,6 +1,7 @@
 const passport = require("passport");
 const passportJWT = require("passport-jwt");
 const User = require("../service/schemas/users");
+require("dotenv").config();
 const secret = process.env.SECRET;
 
 const ExtractJWT = passportJWT.ExtractJwt;
@@ -12,9 +13,10 @@ const params = {
 
 passport.use(
   new Strategy(params, function (payload, done) {
-    User.findOne({ _id: id })
+    console.log("payload", payload);
+
+    User.find({ _id: payload.id })
       .then(([user]) => {
-        console.log(user);
         if (!user) {
           return done(new Error("User not found"));
         }
