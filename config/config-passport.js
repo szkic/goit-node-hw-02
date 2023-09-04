@@ -13,8 +13,6 @@ const params = {
 
 passport.use(
   new Strategy(params, function (payload, done) {
-    console.log("payload", payload);
-
     User.find({ _id: payload.id })
       .then(([user]) => {
         if (!user) {

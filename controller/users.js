@@ -12,9 +12,7 @@ const signup = async (req, res, next) => {
   if (error) return res.status(400).json({ message: error });
 
   const user = await User.findOne({ email });
-  if (user) {
-    return res.status(409).json({ message: "Email in use" });
-  }
+  if (user) return res.status(409).json({ message: "Email in use" });
 
   try {
     const newUser = new User({ email, password });
@@ -23,7 +21,7 @@ const signup = async (req, res, next) => {
 
     const { subscription } = newUser;
 
-    res.status(201).json({
+    return res.status(201).json({
       message: "user added",
       data: {
         user: {
@@ -33,7 +31,7 @@ const signup = async (req, res, next) => {
       },
     });
   } catch (error) {
-    res.status(500).json(`User create error - ${error}`);
+    return res.status(500).json(`User create error - ${error}`);
   }
 };
 
@@ -58,13 +56,14 @@ const login = async (req, res, next) => {
     const payload = {
       id,
       email,
+      subscription,
     };
 
     const token = jwt.sign(payload, secret, { expiresIn: "1h" });
     user.token = token;
     await user.save();
 
-    res.status(200).json({
+    return res.status(200).json({
       data: {
         token,
         user: {
@@ -74,26 +73,49 @@ const login = async (req, res, next) => {
       },
     });
   } catch (error) {
-    res.status(500).json(error);
+    return res.status(500).json(error);
   }
 };
 
 const auth = (req, res, next) => {
   passport.authenticate("jwt", { session: false }, (err, user) => {
-    console.log("user", user);
+    if (!user || err)
+      return res.status(401).json({ message: "Not authorized" });
 
-    if (!user || err) {
-      return res.status(401).json({
-        message: "Not authorized",
-      });
-    }
     req.user = user;
     next();
   })(req, res, next);
 };
 
 const logout = (req, res, next) => {
-  console.log("test logout");
+  try {
+    const { user } = req;
+    const { token } = user;
+
+    if (!token) return res.status(401).json({ message: "Not authorized" });
+
+    user.token = null;
+    user.save();
+
+    return res.status(204).send();
+  } catch (error) {
+    return res.status(500).json(error);
+  }
+};
+
+const current = (req, res, next) => {
+  const { user } = req;
+  const { token } = user;
+
+  if (!token) return res.status(401).json({ message: "Not authorized" });
+
+  const decode = jwt.decode(token);
+  const { email, subscription } = decode;
+
+  return res.status(200).json({
+    email,
+    subscription,
+  });
 };
 
 module.exports = {
@@ -101,4 +123,5 @@ module.exports = {
   login,
   auth,
   logout,
+  current,
 };

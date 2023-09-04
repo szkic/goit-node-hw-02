@@ -18,7 +18,6 @@ const updateStatusContact = (id, fields) =>
   Contact.findOneAndUpdate({ _id: id }, { $set: fields }, { new: true });
 
 // -------- USERS --------
-// const findUser = () => User.find();
 
 // const createUser = ({ email, password }) => User.create({ email, password });
 
@@ -31,7 +30,6 @@ module.exports = {
   updateContact,
   removeContact,
   updateStatusContact,
-  // findUser,
   // createUser,
   // findEmail,
 };
