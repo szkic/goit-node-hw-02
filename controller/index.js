@@ -1,4 +1,3 @@
-const { query } = require("express");
 const service = require("../service");
 const {
   validateAddContact,

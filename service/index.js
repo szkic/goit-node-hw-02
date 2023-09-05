@@ -1,5 +1,5 @@
 const Contact = require("./schemas/contact");
-// const User = require("./schemas/users");
+const User = require("./schemas/users");
 
 // -------- CONTACTS --------
 const getAllContacts = () => Contact.find();
@@ -19,9 +19,14 @@ const updateStatusContact = (id, fields) =>
 
 // -------- USERS --------
 
-// const createUser = ({ email, password }) => User.create({ email, password });
+const findUser = async (email) => await User.findOne({ email });
 
-// const findEmail = (email) => User.findOne({ email });
+const createUser = async ({ email, password }) => {
+  const newUser = new User({ email, password });
+  newUser.setPassword(password);
+  await newUser.save();
+  return newUser;
+};
 
 module.exports = {
   getAllContacts,
@@ -30,6 +35,6 @@ module.exports = {
   updateContact,
   removeContact,
   updateStatusContact,
-  // createUser,
-  // findEmail,
+  findUser,
+  createUser,
 };

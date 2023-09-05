@@ -1,23 +1,21 @@
-const { validateUser } = require("../validator");
+const { validateUser, validateUserSubscription } = require("../validator");
 const jwt = require("jsonwebtoken");
 const secret = process.env.SECRET;
-const User = require("../service/schemas/users");
 const passport = require("passport");
+const { createUser, findUser } = require("../service");
 
 const signup = async (req, res, next) => {
   try {
     const { body } = req;
-    const { email, password } = body;
+    const { email } = body;
 
     const { error } = validateUser(body);
     if (error) return res.status(400).json({ message: error });
 
-    const user = await User.findOne({ email });
+    const user = await findUser(email);
     if (user) return res.status(409).json({ message: "Email in use" });
 
-    const newUser = new User({ email, password });
-    newUser.setPassword(password);
-    await newUser.save();
+    const newUser = await createUser(body);
 
     const { subscription } = newUser;
 
@@ -43,7 +41,7 @@ const login = async (req, res, next) => {
     const { error } = validateUser(body);
     if (error) return res.status(400).json({ message: error });
 
-    const user = await User.findOne({ email });
+    const user = await findUser(email);
     if (!user)
       return res.status(401).json({ message: "There is no such user" });
 
@@ -120,10 +118,37 @@ const current = (req, res, next) => {
   });
 };
 
+const subscription = async (req, res, next) => {
+  try {
+    const { body, user } = req;
+    const { token } = user;
+    const { error } = validateUserSubscription(body);
+
+    if (error) return res.status(400).json({ message: error });
+    if (!token) return res.status(401).json({ message: "Not authorized" });
+
+    user.subscription = body.subscription;
+    await user.save();
+
+    const { email, subscription } = user;
+
+    return res.status(200).json({
+      message: "subscription updated",
+      data: {
+        email,
+        subscription,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json(`User update error - ${error}`);
+  }
+};
+
 module.exports = {
   signup,
   login,
   auth,
   logout,
   current,
+  subscription,
 };

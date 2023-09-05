@@ -26,7 +26,12 @@ const userSchema = Joi.object({
   password: Joi.string().min(4).required(),
 });
 
+const subscription = Joi.object({
+  subscription: Joi.string().valid("starter", "pro", "business").required(),
+});
+
 exports.validateAddContact = validator(addSchema);
 exports.validateEditContact = validator(editSchema);
 exports.validateFavorite = validator(editFavorite);
 exports.validateUser = validator(userSchema);
+exports.validateUserSubscription = validator(subscription);
