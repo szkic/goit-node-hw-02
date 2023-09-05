@@ -1,3 +1,4 @@
+const { query } = require("express");
 const service = require("../service");
 const {
   validateAddContact,
@@ -13,11 +14,23 @@ const checkIfIdValid = (contactId, res) => {
 
 const get = async (req, res, next) => {
   try {
-    const contactsList = await service.getAllContacts();
+    const { page, limit, favorite } = req.query;
+
+    const contactsList = await service
+      .getAllContacts()
+      .limit(limit)
+      .skip((page - 1) * limit)
+      .exec();
+
+    const favoriteList = contactsList.filter(
+      (favorite) => favorite.favorite === true
+    );
 
     res.status(200).json({
       message: "success",
-      data: { contactsList },
+      data: !favorite ? contactsList : favoriteList,
+      page: page ? page : 1,
+      contacts: !favorite ? contactsList.length : favoriteList.length,
     });
   } catch (error) {
     res.status(500).json(`Contacts download error - ${error}`);

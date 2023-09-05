@@ -5,19 +5,19 @@ const User = require("../service/schemas/users");
 const passport = require("passport");
 
 const signup = async (req, res, next) => {
-  const { body } = req;
-  const { email, password } = body;
-
-  const { error } = validateUser(body);
-  if (error) return res.status(400).json({ message: error });
-
-  const user = await User.findOne({ email });
-  if (user) return res.status(409).json({ message: "Email in use" });
-
   try {
+    const { body } = req;
+    const { email, password } = body;
+
+    const { error } = validateUser(body);
+    if (error) return res.status(400).json({ message: error });
+
+    const user = await User.findOne({ email });
+    if (user) return res.status(409).json({ message: "Email in use" });
+
     const newUser = new User({ email, password });
     newUser.setPassword(password);
-    newUser.save();
+    await newUser.save();
 
     const { subscription } = newUser;
 
@@ -73,7 +73,8 @@ const login = async (req, res, next) => {
       },
     });
   } catch (error) {
-    return res.status(500).json(error);
+    console.log(error);
+    return res.status(500).send();
   }
 };
 
@@ -87,7 +88,7 @@ const auth = (req, res, next) => {
   })(req, res, next);
 };
 
-const logout = (req, res, next) => {
+const logout = async (req, res, next) => {
   try {
     const { user } = req;
     const { token } = user;
@@ -95,11 +96,12 @@ const logout = (req, res, next) => {
     if (!token) return res.status(401).json({ message: "Not authorized" });
 
     user.token = null;
-    user.save();
+    await user.save();
 
     return res.status(204).send();
   } catch (error) {
-    return res.status(500).json(error);
+    console.log(error);
+    return res.status(500).send();
   }
 };
 
