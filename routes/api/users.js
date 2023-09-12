@@ -12,4 +12,11 @@ router.get("/current", ctrlContact.auth, ctrlContact.current);
 
 router.patch("/subscription", ctrlContact.auth, ctrlContact.subscription);
 
+router.patch(
+  "/avatars",
+  ctrlContact.auth,
+  ctrlContact.upload.single("avatar"),
+  ctrlContact.avatars
+);
+
 module.exports = router;
