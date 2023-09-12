@@ -14,8 +14,7 @@ router.patch("/subscription", ctrlContact.auth, ctrlContact.subscription);
 
 router.patch(
   "/avatars",
-  ctrlContact.auth,
-  ctrlContact.upload.single("avatar"),
+  [ctrlContact.auth, ctrlContact.upload.single("avatar")],
   ctrlContact.avatars
 );
 
