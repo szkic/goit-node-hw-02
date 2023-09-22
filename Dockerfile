@@ -9,7 +9,10 @@ ARG NODE_VERSION=18.17.1
 FROM node:${NODE_VERSION}-alpine
 
 # Use production node environment by default.
-
+ENV - SECRET
+ENV - DB_HOST
+ENV - SENDGRID_API_KEY
+ENV - MAIL
 
 
 WORKDIR /usr/src/app

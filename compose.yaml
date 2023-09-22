@@ -12,7 +12,7 @@ services:
     build:
       context: .
     environment:
-      NODE_ENV: SECRET=goitHW2-6
+
     ports:
       - 3000:3000
 # The commented out section below is an example of how to define a PostgreSQL
@@ -32,9 +32,9 @@ services:
 #       - db-password
 #     volumes:
 #       - db-data:/var/lib/postgresql/data
-#     environment:
-#       - POSTGRES_DB=example
-#       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+# environment:
+#   - POSTGRES_DB=example
+#   - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
 #     expose:
 #       - 5432
 #     healthcheck:
