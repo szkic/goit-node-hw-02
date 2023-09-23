@@ -18,4 +18,8 @@ router.patch(
   ctrlContact.avatars
 );
 
+router.get("/verify/:verificationToken", ctrlContact.verifyUser);
+
+router.post("/verify", ctrlContact.resendVerificationEmail);
+
 module.exports = router;

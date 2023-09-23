@@ -30,8 +30,13 @@ const subscription = Joi.object({
   subscription: Joi.string().valid("starter", "pro", "business").required(),
 });
 
+const email = Joi.object({
+  email: Joi.string().email().required(),
+});
+
 exports.validateAddContact = validator(addSchema);
 exports.validateEditContact = validator(editSchema);
 exports.validateFavorite = validator(editFavorite);
 exports.validateUser = validator(userSchema);
 exports.validateUserSubscription = validator(subscription);
+exports.validateEmail = validator(email);

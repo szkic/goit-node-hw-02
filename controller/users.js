@@ -1,5 +1,9 @@
-const { validateUser, validateUserSubscription } = require("../validator");
-const { createUser, findUser } = require("../service");
+const {
+  validateUser,
+  validateUserSubscription,
+  validateEmail,
+} = require("../validator");
+const { createUser, findUser, findVerificationToken } = require("../service");
 const jwt = require("jsonwebtoken");
 const secret = process.env.SECRET;
 const passport = require("passport");
@@ -12,12 +16,16 @@ const Jimp = require("jimp");
 const uploadDir = path.join(process.cwd(), "tmp");
 const createPublic = path.join(process.cwd(), "public");
 const storeImage = path.join(createPublic, "avatars");
+const { nanoid } = require("nanoid");
+const { sendEmail } = require("../sendEmailHandler");
 
 const signup = async (req, res, next) => {
   try {
     const { body } = req;
     const { email } = body;
     const avatarUrl = gravatar.url(email);
+    const verificationToken = nanoid();
+    const url = `http://localhost:3000/api/users/verify/${verificationToken}`;
 
     const { error } = validateUser(body);
     if (error) return res.status(400).json({ message: error });
@@ -25,7 +33,9 @@ const signup = async (req, res, next) => {
     const user = await findUser(email);
     if (user) return res.status(409).json({ message: "Email in use" });
 
-    const newUser = await createUser(body, avatarUrl);
+    const newUser = await createUser(body, avatarUrl, verificationToken);
+
+    sendEmail(url);
 
     const { subscription } = newUser;
 
@@ -52,6 +62,12 @@ const login = async (req, res, next) => {
     if (error) return res.status(400).json({ message: error });
 
     const user = await findUser(email);
+
+    if (!user.verify)
+      return res
+        .status(401)
+        .json({ message: "Please verify your email first" });
+
     if (!user)
       return res.status(401).json({ message: "There is no such user" });
 
@@ -199,6 +215,50 @@ const avatars = async (req, res, next) => {
   }
 };
 
+const verifyUser = async (req, res, next) => {
+  try {
+    const { verificationToken } = req.params;
+
+    const findToken = await findVerificationToken(verificationToken);
+
+    if (!findToken) return res.status(404).json({ message: "User not found" });
+
+    findToken.verify = true;
+    findToken.verificationToken = "null";
+    await findToken.save();
+
+    return res.status(200).json({ message: "Verification successful" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send();
+  }
+};
+
+const resendVerificationEmail = async (req, res, next) => {
+  try {
+    const { body } = req;
+    const { email } = body;
+
+    const user = await findUser(email);
+    const { verify, verificationToken } = user;
+    const url = `http://localhost:3000/api/users/verify/${verificationToken}`;
+
+    const { error } = validateEmail(body);
+    if (error) return res.status(400).json({ error });
+
+    if (verify)
+      return res
+        .status(400)
+        .json({ message: "Verification has already been passed" });
+
+    sendEmail(url);
+
+    return res.status(200).json({ message: "Verification email sent" });
+  } catch (error) {
+    return res.status(500).send();
+  }
+};
+
 module.exports = {
   signup,
   login,
@@ -211,4 +271,6 @@ module.exports = {
   uploadDir,
   storeImage,
   createPublic,
+  verifyUser,
+  resendVerificationEmail,
 };
